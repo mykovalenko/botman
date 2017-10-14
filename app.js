@@ -43,7 +43,7 @@ if (process.env.IS_SPELL_CORRECTION_ENABLED === 'true') {
 // Root Dialog
 bot.dialog('/', [
     function (session) {
-        session.beginDialog('/askName');
+        session.beginDialog('/saySomething');
     },
     function (session, results) {
         session.send('Hi! We are analyzing your message: \'%s\'', session.message.text);
@@ -52,8 +52,8 @@ bot.dialog('/', [
 ]);
 
 // Branch Dialog
-bot.dialog('/askName', [
+bot.dialog('/saySomething', [
     function (session) {
-        builder.Prompts.text(session, 'Hello world! What is your name?');
+        builder.Prompts.text(session, 'Hello world! Tell me something');
     }
 ]); 
