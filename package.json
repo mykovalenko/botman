@@ -1,0 +1,31 @@
+{
+  "name": "botman",
+  "version": "1.0.0",
+  "description": "Bot Builder Sample - Botman",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Microsoft Corp.",
+  "license": "MIT",
+  "keywords": [
+    "botbuilder",
+    "bots",
+    "chatbots"
+  ],
+  "bugs": {
+    "url": "https://github.com/Microsoft/BotBuilder-Samples/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mykovalenko/msft.git"
+  },
+  "dependencies": {
+    "applicationinsights": "^1.0.0",
+    "bluebird": "^3.5.1",
+    "botbuilder": "^3.11.0",
+    "dotenv-extended": "^1.0.4",
+    "restify": "^4.3.1"
+  },
+  "homepage": "https://github.com/Microsoft/BotBuilder-Samples#readme",
+  "main": "app.js"
+}
