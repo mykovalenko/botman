@@ -1,5 +1,6 @@
 var builder = require('botbuilder');
 var restify = require('restify');
+var spellService = require('./spell-service');
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -21,15 +22,32 @@ bot.on('error', function (e) {
     console.log('And error ocurred', e);
 });
 
+// Spell Check
+if (process.env.IS_SPELL_CORRECTION_ENABLED === 'true') {
+    bot.use({
+        botbuilder: function (session, next) {
+            spellService
+                .getCorrectedText(session.message.text)
+                .then(function (text) {
+                    session.message.text = text;
+                    next();
+                })
+                .catch(function (error) {
+                    console.error(error);
+                    next();
+                });
+        }
+    });
+}
+
 // Root Dialog
 bot.dialog('/', [
     function (session) {
-        //Trigger /askName dialog
         session.beginDialog('/askName');
     },
     function (session, results) {
-        //Return hello + user's input (name)
-        session.send('Hello %s!', results.response);
+        session.send('Hi! We are analyzing your message: \'%s\'', session.message.text);
+        //session.send('Hello %s!', results.response);
     }
 ]);
 
