@@ -172,7 +172,7 @@ bot.dialog('GetHelp', function (session) {
 
     //just a call to AML for no reason
     AzureML.executeCall('null', function(data) {
-        session.send('Received response from Azure ML [%s]', data);
+        session.send('Received response from Azure ML [%s]', JSON.stringify(data));
     });
 }).triggerAction({
     matches: 'GetHelp'
