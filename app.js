@@ -5,6 +5,7 @@ var restify = require('restify');
 var spellService = require('./bingspell');
 var Store = require('./store');
 var Telemetry = require('./telemetry.js');
+var AzureML = require('./restclient.js');
 
 // APP Insights
 var appInsights = require('applicationinsights');
@@ -168,6 +169,11 @@ bot.dialog('GetHelp', function (session) {
     session.endDialog('Hi! Try asking me things like \'search hotels in Seattle\', \'search hotels near LAX airport\' or \'show me the reviews of The Bot Resort\'');
     var telemetry = Telemetry.createTelemetry(session);
     appInsightsClient.trackEvent('HelpRequest', telemetry);
+
+    //just a call to AML for no reason
+    AzureML.executeCall('null', function(data) {
+        session.send('Received response from Azure ML [%s]', data);
+    });
 }).triggerAction({
     matches: 'GetHelp'
 });
