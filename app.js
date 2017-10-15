@@ -2,6 +2,12 @@ var builder = require('botbuilder');
 var restify = require('restify');
 var spellService = require('./bingspell');
 var Store = require('./store');
+var Telemetry = require('./telemetry.js');
+
+// APP Insights
+var appInsights = require('applicationinsights');
+appInsights.setup(process.env.APPINSIGHTS_INSTRUMENTATION_KEY).start();
+var appInsightsClient = appInsights.getClient();
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -18,6 +24,8 @@ server.post('/api/messages', connector.listen());
 
 var bot = new builder.UniversalBot(connector, function (session) {
     session.send('Sorry, I did not understand \'%s\'. Type \'help\' if you need assistance.', session.message.text);
+    var telemetry = telemetryModule.createTelemetry(session, { setDefault: false });
+    appInsightsClient.trackTrace('start', telemetry);    
 });
 
 // Connect LUIS model
@@ -41,6 +49,9 @@ if (process.env.IS_SPELL_CORRECTION_ENABLED === 'true') {
                 })
                 .catch(function (error) {
                     console.error(error);
+                    var telemetry = telemetryModule.createTelemetry(session);
+                    telemetry.exception = error.toString();
+                    appInsightsClient.trackException(telemetry);
                     next();
                 });
         }
@@ -101,12 +112,21 @@ bot.dialog('SearchHotels', [
 
         session.send(message, destination);
 
+        // Gather search time telemetry: Start
+        var telemetry = telemetryModule.createTelemetry(session);
+        var timerStart = process.hrtime();
+
         // Async search
         Store
             .searchHotels(destination)
             .then(function (hotels) {
                 // args
                 session.send('I found %d hotels:', hotels.length);
+
+                // Gather search time telemetry: End 
+                var timerEnd = process.hrtime(timerStart);
+                telemetry.metrics = (timerEnd[0], timerEnd[1] / 1000000);
+                appInsightsClient.trackEvent('SearchTime', telemetry);
 
                 var message = new builder.Message()
                     .attachmentLayout(builder.AttachmentLayout.carousel)
@@ -144,6 +164,8 @@ bot.dialog('ShowHotelsReviews', function (session, args) {
 
 bot.dialog('GetHelp', function (session) {
     session.endDialog('Hi! Try asking me things like \'search hotels in Seattle\', \'search hotels near LAX airport\' or \'show me the reviews of The Bot Resort\'');
+    var telemetry = telemetryModule.createTelemetry(session);
+    appInsightsClient.trackEvent('HelpRequest', telemetry);
 }).triggerAction({
     matches: 'GetHelp'
 });
