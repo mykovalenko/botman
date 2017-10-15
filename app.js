@@ -1,3 +1,5 @@
+//require('dotenv-extended').load();
+
 var builder = require('botbuilder');
 var restify = require('restify');
 var spellService = require('./bingspell');
@@ -7,7 +9,7 @@ var Telemetry = require('./telemetry.js');
 // APP Insights
 var appInsights = require('applicationinsights');
 appInsights.setup(process.env.APPINSIGHTS_INSTRUMENTATION_KEY).start();
-var appInsightsClient = appInsights.getClient();
+var appInsightsClient = appInsights.defaultClient;
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -24,7 +26,7 @@ server.post('/api/messages', connector.listen());
 
 var bot = new builder.UniversalBot(connector, function (session) {
     session.send('Sorry, I did not understand \'%s\'. Type \'help\' if you need assistance.', session.message.text);
-    var telemetry = telemetryModule.createTelemetry(session, { setDefault: false });
+    var telemetry = Telemetry.createTelemetry(session, { setDefault: false });
     appInsightsClient.trackTrace('start', telemetry);    
 });
 
@@ -49,7 +51,7 @@ if (process.env.IS_SPELL_CORRECTION_ENABLED === 'true') {
                 })
                 .catch(function (error) {
                     console.error(error);
-                    var telemetry = telemetryModule.createTelemetry(session);
+                    var telemetry = Telemetry.createTelemetry(session);
                     telemetry.exception = error.toString();
                     appInsightsClient.trackException(telemetry);
                     next();
@@ -113,7 +115,7 @@ bot.dialog('SearchHotels', [
         session.send(message, destination);
 
         // Gather search time telemetry: Start
-        var telemetry = telemetryModule.createTelemetry(session);
+        var telemetry = Telemetry.createTelemetry(session);
         var timerStart = process.hrtime();
 
         // Async search
@@ -164,7 +166,7 @@ bot.dialog('ShowHotelsReviews', function (session, args) {
 
 bot.dialog('GetHelp', function (session) {
     session.endDialog('Hi! Try asking me things like \'search hotels in Seattle\', \'search hotels near LAX airport\' or \'show me the reviews of The Bot Resort\'');
-    var telemetry = telemetryModule.createTelemetry(session);
+    var telemetry = Telemetry.createTelemetry(session);
     appInsightsClient.trackEvent('HelpRequest', telemetry);
 }).triggerAction({
     matches: 'GetHelp'
