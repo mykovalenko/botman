@@ -1,6 +1,6 @@
 var builder = require('botbuilder');
 var restify = require('restify');
-var spellService = require('./spell-service');
+var spellService = require('./bingspell');
 
 // Setup Restify Server
 var server = restify.createServer();
