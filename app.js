@@ -145,6 +145,6 @@ bot.dialog('ShowHotelsReviews', function (session, args) {
 bot.dialog('GetHelp', function (session) {
     session.endDialog('Hi! Try asking me things like \'search hotels in Seattle\', \'search hotels near LAX airport\' or \'show me the reviews of The Bot Resort\'');
 }).triggerAction({
-    matches: 'Help'
+    matches: 'GetHelp'
 });
 
