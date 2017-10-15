@@ -127,7 +127,7 @@ bot.dialog('SearchHotels', [
 
 bot.dialog('ShowHotelsReviews', function (session, args) {
     // retrieve hotel name from matched entities
-    var hotelEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'Hotel');
+    var hotelEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'ReservationType::Hotel');
     if (hotelEntity) {
         session.send('Looking for reviews of \'%s\'...', hotelEntity.entity);
         Store.searchHotelReviews(hotelEntity.entity)
